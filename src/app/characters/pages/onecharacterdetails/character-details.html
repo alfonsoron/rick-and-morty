@@ -1,0 +1,60 @@
+<div style="min-height:100vh; background-color:rgb(31, 31, 31)">
+  <div class="container py-4 text-light">
+    <div class="row g-4">
+
+      <!--Foto info-->
+      <div class="col-md-4">
+        <div class="card bg-dark border-secondary text-light">
+          <img
+            [src]="character()?.image"
+            [alt]="character()?.name"
+            class="card-img-top"
+          />
+
+          <div class="card-body">
+            <h5 class="card-title text-center">Character Info</h5>
+            <hr>
+
+            <p class="mb-1"><strong>Name:</strong> {{ character()?.name }}</p>
+            <p class="mb-1"
+                  [ngClass]="{
+                    'text-danger': character()?.status === 'Dead',
+                    'text-success': character()?.status === 'Alive',
+                    'text-warning': character()?.status === 'unknown'
+                  }"
+                >
+                  <strong class="text-light">Status:</strong> {{ character()?.status | traduccion }}</p>
+            <p class="mb-1"><strong>Species:</strong> {{ character()?.species }}</p>
+            <p class="mb-1"><strong>Gender:</strong> {{ character()?.gender | traduccion }}</p>
+            <p class="mb-1"><strong>Origin:</strong> {{ character()?.origin?.name }}</p>
+            <p class="mb-1"><strong>Location:</strong> {{ character()?.location?.name }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!--episodios-->
+      <div class="col-md-8">
+        <div class="card bg-dark border-secondary text-light h-100">
+          <h5 class="card-header">
+            <strong>List of Episodes appearances</strong>
+            <hr>
+          </h5>
+
+           <div class="list-group list-group-flush">
+
+          @for (item of episodes(); track item) {
+            <a
+              class="list-group-item bg-dark border-secondary text-primary "
+            >
+              {{ item.episode }} - {{ item.name }}
+            </a>
+          }
+
+        </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
