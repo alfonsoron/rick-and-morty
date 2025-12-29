@@ -10,7 +10,7 @@ import { NotFound } from './characters/pages/not-found/not-found';
 export const routes: Routes = [
 
   {
-    path:'',
+    path: '',
     component: Start,
 
   },
@@ -18,43 +18,47 @@ export const routes: Routes = [
     path: 'Home',
     children: [{
 
-                path: 'characters',
-                children: [
-                    {
-                      path: '',
-                      component: CharactersList
-                    },
-                    {
-                      path: ':id',
-                      component: CharacterDetails
-                    },
-                  ],
-          },
-          {
-            path: 'episode',
-            component: Episode
-          },
-          {
-            path: 'locations',
-            component: Locations
-          },
+      path: 'characters',
+      children: [
+        {
+          path: '',
+          component: CharactersList
+        },
+        {
+          path: ':id',
+          component: CharacterDetails
+        },
+      ],
+    },
+    {
+      path: 'episode',
+      component: Episode
+    },
+    {
+      path: 'locations',
+      component: Locations
+    },
 
 
-          { path: '404',
-            component: NotFound },
-          {
-            path: '**',
-            redirectTo: '404',
-          },
+    {
+      path: '404',
+      component: NotFound
+    },
+    {
+      path: '**',
+      redirectTo: '404',
+    },
 
-        ]
-      },
+    ]
+  },
 
-  { path: '404',
-    component: NotFound },
+  {
+    path: '404',
+    component: NotFound
+  },
   {
     path: '**',
-     redirectTo: '404',
+    redirectTo: '404',
   },
 
 

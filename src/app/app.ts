@@ -31,10 +31,7 @@ export class App {
 
   checkUrl(url: string) {
 
-    if (
-      url === '/' || url === '/404' ||
-      url==='/Home/404'
-    ) {
+    if ( url === '/' || url === '/404' || url==='/Home/404') {
       this.showTopMenu = false;
       return
     }
