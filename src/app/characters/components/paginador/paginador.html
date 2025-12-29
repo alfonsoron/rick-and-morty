@@ -1,0 +1,24 @@
+
+<nav aria-label="Page navigation" class="d-flex justify-content-center" style="background-color:rgb(31, 31, 31)">
+  <ul class="pagination">
+    <li class="page-item">
+      <a class="page-link bg-dark text-light border-secondary btn" (click)="prevPage()">Previous</a>
+    </li>
+
+    @if (prevNullPage() !== null) {<li class="page-item">
+      <a class="page-link bg-dark text-light border-secondary btn" (click)="prevPage()">{{currentPage()-1}}</a>
+    </li>}
+
+    <li class="page-item">
+      <a class="page-link bg-dark border-secondary btn " (click)="goToPage(currentPage())">{{currentPage()}}</a>
+    </li>
+
+    @if(nextNullPage() !== null){<li class="page-item">
+      <a class="page-link bg-dark text-light border-secondary btn" (click)="nextPage()">{{currentPage() + 1}}</a>
+    </li>}
+
+    <li class="page-item">
+      <a class="page-link bg-dark text-light border-secondary btn" (click)="nextPage()">Next</a>
+    </li>
+  </ul>
+</nav>
