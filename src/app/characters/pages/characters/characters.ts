@@ -1,17 +1,18 @@
 import { Component, inject, signal } from '@angular/core';
 import { RickMortyService } from '../../service/rick-morty.service';
 import { InterfaceCharacter } from '../../interface/character.inteface';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { Paginador } from "../../components/paginador/paginador";
 
 @Component({
   selector: 'app-characters',
-  imports: [RouterLink, Paginador],
+  imports: [Paginador],
   templateUrl: './characters.html',
 })
 export class CharactersList {
 
   private rickMortyService = inject(RickMortyService);
+  private router = inject(Router);
 
   characters = signal<InterfaceCharacter[]>([]);
 
@@ -42,6 +43,13 @@ export class CharactersList {
       },
       error: () => this.characters.set([]),
     });
+
+  }
+  goToDetail(character: InterfaceCharacter): void {
+    this.rickMortyService.setCharacterDetail(character);
+    console.log(character);
+    this.router.navigate(['/Home/characters', character.id]);
+
 
   }
 }

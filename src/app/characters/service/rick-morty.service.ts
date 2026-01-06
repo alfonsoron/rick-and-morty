@@ -9,6 +9,8 @@ import { EpisodeInterface } from '../interface/character.inteface';
 export class RickMortyService {
   private readonly baseUrl = 'https://rickandmortyapi.com/api';
 
+  characterDetail = signal<InterfaceCharacter | null>(null);
+
   constructor(private http: HttpClient) {}
 
   getCharacters(page: number, name?: string) {
@@ -16,6 +18,13 @@ export class RickMortyService {
     if (name) params.name = name;
 
     return this.http.get<CharacterResponse>(`${this.baseUrl}/character`,{ params });
+  }
+
+  setCharacterDetail(character: InterfaceCharacter) {
+    this.characterDetail.set(character);
+  }
+  getCharacterDetail(): InterfaceCharacter | null {
+    return this.characterDetail();
   }
 
 
