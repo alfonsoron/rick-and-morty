@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { EpisodeInterface } from '../../characters/interface/character.inteface';
 import { RegisterPayload } from '../interfaces/registerPayload';
 import { RegisterResponse } from '../interfaces/registerResponse';
@@ -11,7 +12,7 @@ import { LoginResponse } from '../interfaces/loginResponse';
 export class UserService {
   private http = inject(HttpClient);
 
-  private readonly BASE_URL = '/api';
+  private readonly BASE_URL = environment.apiUrl;
   private readonly REGISTER_URL = `${this.BASE_URL}/user/register`;
   private readonly LOGIN_URL = `${this.BASE_URL}/user/login`;
   private readonly FAVORITE_EPISODES_URL = `${this.BASE_URL}/favorite-episodes`;
