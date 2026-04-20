@@ -1,15 +1,48 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Rick and Morty</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+
+    <button class="navbar-brand" (click)="goToStart()"  style="background: transparent; border: none;">Rick and Morty</button>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavAltMarkup">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link" routerLink="/Home/characters">Character</a>
-        <a class="nav-link" routerLink="/Home/episode">Episodes</a>
-        <a class="nav-link" routerLink="/Home/locations">Locations</a>
+      <div class="navbar-nav me-auto">
+        <button class="nav-link" (click)="goToCharacters()">Characters</button>
+        <button class="nav-link" (click)="goToEpisodes()">Episodes</button>
+        <button class="nav-link" (click)="goToLocations()">Locations</button>
       </div>
+
+
+
+      @if (authService.user) {
+        <div class="d-flex align-items-center gap-3 text-light">
+          <span>
+            Hola, <strong>{{ authService.user.name }}</strong>
+          </span>
+
+          <button
+            class="btn btn-outline-primary btn-sm"
+            (click)="goToProfile()">
+            Profile
+          </button>
+
+
+          <button
+            class="btn btn-outline-danger btn-sm"
+            (click)="logout()">
+            Logout
+          </button>
+
+        </div>
+      }
+
+
     </div>
   </div>
 </nav>

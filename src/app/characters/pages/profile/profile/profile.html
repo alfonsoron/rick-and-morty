@@ -1,0 +1,138 @@
+<div style="min-height:100vh; background-color:rgb(31, 31, 31)">
+  <div class="container py-4 text-light">
+
+    @if (user()) {
+
+      <div class="row g-4">
+
+        <div class="col-md-4">
+          <div class="card bg-dark border-secondary text-light">
+
+            @if (hasProfilePhoto()) {
+              <img
+                [src]="user()?.photoUrl"
+                alt="Profile photo"
+                class="card-img-top object-fit-cover"
+                style="width:100%; aspect-ratio:1/1;"
+                (error)="onProfileImageError()"
+              />
+            } @else {
+              <div
+                class="card-img-top bg-secondary-subtle d-flex align-items-center justify-content-center text-dark"
+                style="width:100%; aspect-ratio:1/1;"
+              >
+                <span>No profile photo</span>
+              </div>
+            }
+
+            <div class="card-body">
+              <h5 class="card-title text-center">Profile Info</h5>
+              <hr>
+
+              <p class="mb-1">
+                <strong>Name:</strong> {{ user()?.name }}
+              </p>
+
+              <p class="mb-1">
+                <strong>Mail:</strong> {{ user()?.mail }}
+              </p>
+
+              <p class="mb-1">
+                <strong>Phone:</strong> {{ user()?.phone }}
+              </p>
+
+              <p class="mb-1">
+                <strong>Role:</strong> {{ user()?.role }}
+              </p>
+
+              <p class="mb-1">
+                <strong>Birthday:</strong> {{ user()?.birthday || 'No especificada' }}
+              </p>
+
+              <p class="mb-1">
+                <strong>Location:</strong> {{ getAddress() }}
+              </p>
+
+              <hr>
+
+              <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="d-flex flex-column gap-3">
+                <div>
+                  <label class="form-label">Edit name</label>
+                  <input
+                    type="text"
+                    class="form-control bg-dark text-light border-secondary"
+                    formControlName="name"
+                  />
+                </div>
+
+                <div>
+                  <label class="form-label">Edit location</label>
+                  <input
+                    type="text"
+                    class="form-control bg-dark text-light border-secondary"
+                    formControlName="location"
+                  />
+                </div>
+
+                <div>
+                  <label class="form-label">Photo URL</label>
+                  <input
+                    type="text"
+                    class="form-control bg-dark text-light border-secondary"
+                    formControlName="photoUrl"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <button class="btn btn-primary" type="submit">
+                  Save changes
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card bg-dark border-secondary text-light h-100">
+            <h5 class="card-header">
+              <strong>List of Like Episodes </strong>
+              <hr>
+            </h5>
+
+            <div class="list-group list-group-flush">
+              <div
+                class="list-group-item bg-dark border-secondary text-light"
+                style="min-height: 420px;"
+              >
+                @if (favoriteEpisodes().length) {
+                  <div class="d-flex flex-column gap-3">
+                    @for (item of favoriteEpisodes(); track item.id) {
+                      <button
+                        class="btn btn-outline-primary text-start"
+                        type="button"
+                        (click)="goToEpisode(item.id)"
+                      >
+                        {{ item.episode }} - {{ item.name }}
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <p class="mb-0 text-secondary">Todavia no agregaste episodios a favoritos.</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    } @else {
+
+      <div class="alert alert-warning">
+        No hay usuario logueado
+      </div>
+
+    }
+
+  </div>
+</div>

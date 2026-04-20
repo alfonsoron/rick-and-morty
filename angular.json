@@ -25,6 +25,7 @@
               }
             ],
             "styles": [
+              "src/material-theme.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ]
@@ -60,7 +61,8 @@
               "buildTarget": "Rick-and-Morty:build:production"
             },
             "development": {
-              "buildTarget": "Rick-and-Morty:build:development"
+              "buildTarget": "Rick-and-Morty:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

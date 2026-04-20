@@ -1,0 +1,149 @@
+<div style="min-height:100vh; background-color:rgb(31, 31, 31);">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-8">
+        <div class="card bg-dark text-light border-0 shadow">
+          <div class="card-body p-4 p-md-5">
+
+            <h2 class="text-center mb-4">Register</h2>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+              <!-- Full Name y Email -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label text-info">Full Name</label>
+                  <input class="form-control bg-secondary text-light border-0"
+                         formControlName="fullName"
+                         placeholder="Cosme Fulanito" />
+
+                  @if (loginForm.get('fullName')?.touched && loginForm.get('fullName')?.hasError('required')) {
+                    <small class="text-danger">El nombre es obligatorio</small>
+                  }
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-info">Email</label>
+                  <input class="form-control bg-secondary text-light border-0"
+                         formControlName="email"
+                         placeholder="example@example.com" />
+
+                  @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')) {
+                    <small class="text-danger d-block mb-3">Email inválido</small>
+                  }
+                  @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')) {
+                    <small class="text-danger d-block mb-3">Email obligatorio</small>
+                  }
+                </div>
+              </div>
+
+              <!-- Password y Repeat Password -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label text-info">Password</label>
+                  <input type="password"
+                         class="form-control bg-secondary text-light border-0"
+                         formControlName="password"
+                         placeholder="********" />
+                </div>
+
+
+
+                <div class="col-md-6">
+                  <label class="form-label text-info">Repeat Password</label>
+                  <input type="password"
+                         class="form-control bg-secondary text-light border-0"
+                         formControlName="repeatPassword"
+                         placeholder="********" />
+                </div>
+              </div>
+
+              @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+                  <small class="text-danger d-block mb-3">La contraseña es obligatoria</small>
+                  }
+
+              @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')) {
+                   <small class="text-danger d-block mb-3">Mínimo 8 caracteres</small>
+                  }
+
+              @if (loginForm.errors?.['passwordsMismatch']) {
+                <small class="text-danger d-block mb-3">Las contraseñas no coinciden</small>
+              }
+
+              <!-- Address -->
+              <div class="mb-2">
+                <label class="form-label text-info">Address (optional)</label>
+              </div>
+
+              <!-- Street -->
+              <div class="mb-3">
+                <label class="form-label text-info">Street</label>
+                <input class="form-control bg-secondary text-light border-0"
+                       formControlName="street"
+                       placeholder="Apartment, studio or floor" />
+              </div>
+
+              <!-- Number -->
+              <div class="mb-3">
+                <label class="form-label text-info">Number</label>
+                <input class="form-control bg-secondary text-light border-0"
+                       formControlName="number"
+                       placeholder="street number" />
+              </div>
+
+              <!-- City Country Zip -->
+              <div class="row mb-4">
+                <div class="col-md-4">
+                  <label class="form-label text-info">City</label>
+                  <input class="form-control bg-secondary text-light border-0"
+                         formControlName="city"
+                         placeholder="Córdoba" />
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label text-info">Country</label>
+                  <input class="form-control bg-secondary text-light border-0"
+                         formControlName="country"
+                         placeholder="Argentina" />
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label text-info">Zip</label>
+                  <input class="form-control bg-secondary text-light border-0"
+                         formControlName="zip"
+                         placeholder="5000" />
+
+                  @if (loginForm.get('zip')?.touched && loginForm.get('zip')?.invalid) {
+                    <small class="text-danger">Debe tener 4 números</small>
+                  }
+                </div>
+              </div>
+
+              @if (ok() === false){
+                <div class="alert alert-danger mb-3"> Mail invalido o ya registrado </div>
+               }
+
+              @if (loginForm.errors?.['addressIncomplete']) {
+                <div class="alert alert-danger mb-3">
+                  Dirección incompleta
+                </div>
+              }
+
+              <button type="submit" class="btn btn-primary w-20">
+                Sign Up
+              </button>
+
+              <div class="mt-3 text-center">
+                  <button (click)="goToLogin()" class="text-info text-decoration-none card bg-dark border-0 shadow">
+                    Already Signed Up? Sign In
+                  </button>
+                </div>
+
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

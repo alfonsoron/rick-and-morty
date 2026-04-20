@@ -1,0 +1,46 @@
+<div class="p-3" style="background-color: rgb(31, 31, 31); min-height: 100vh;">
+  <div class="container-fluid py-2 text-light">
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card bg-dark border-secondary text-light h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
+              <h5 class="card-title mb-0">Info of the episode</h5>
+              <button
+                class="btn btn-primary"
+                type="button"
+                (click)="toggleEpisodeFavorite()"
+              >
+                {{ favoriteAdded() ? 'Remove from favorites' : 'Add to favorites' }}
+              </button>
+            </div>
+            <hr>
+
+            <p class="mb-1"><strong>Name:</strong> {{ episode()?.name }}</p>
+            <p class="mb-1"><strong>air date:</strong> {{ episode()?.air_date }}</p>
+            <p class="mb-1"><strong>episode:</strong> {{ episode()?.episode }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card bg-dark border-secondary text-light h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Characters in this episode</h5>
+            <hr>
+
+            <div class="d-flex flex-column gap-1">
+              @for (item of characters(); track item.id) {
+                <a class="text-primary" role="button" (click)="goToCharacter(item)">
+                  {{ item.name }}
+                </a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-episode-comments [episode]="episode()"></app-episode-comments>
+  </div>
+</div>

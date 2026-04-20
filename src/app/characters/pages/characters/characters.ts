@@ -3,6 +3,7 @@ import { RickMortyService } from '../../service/rick-morty.service';
 import { InterfaceCharacter } from '../../interface/character.inteface';
 import { Router, RouterLink } from "@angular/router";
 import { Paginador } from "../../components/paginador/paginador";
+import { AppRoute, HomeRoute } from '../../../shared/enums/routes.enums';
 
 @Component({
   selector: 'app-characters',
@@ -48,7 +49,7 @@ export class CharactersList {
   goToDetail(character: InterfaceCharacter): void {
     this.rickMortyService.setCharacterDetail(character);
     console.log(character);
-    this.router.navigate(['/Home/characters', character.id]);
+    this.router.navigate([AppRoute.Home, HomeRoute.Characters, character.id]);
 
 
   }

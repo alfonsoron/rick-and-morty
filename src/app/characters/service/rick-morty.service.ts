@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CharacterResponse } from '../interface/character-response.interface';
-import { InterfaceCharacter } from '../interface/character.inteface';
-import { EpisodeInterface } from '../interface/character.inteface';
+import { CharacterResponse, EpisodeResponse } from '../interface/character-response.interface';
+import { InterfaceCharacter, EpisodeInterface } from '../interface/character.inteface';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -17,26 +17,39 @@ export class RickMortyService {
     const params: any = { page: String(page) };
     if (name) params.name = name;
 
-    return this.http.get<CharacterResponse>(`${this.baseUrl}/character`,{ params });
+    return this.http.get<CharacterResponse>(`${this.baseUrl}/character`, { params });
+  }
+
+  getEpisodes(page: number, name?: string) {
+    const params: any = { page: String(page) };
+    if (name) params.name = name;
+
+    return this.http.get<EpisodeResponse>(`${this.baseUrl}/episode`, { params });
+  }
+
+  getEpisodeById(id: number) {
+    return this.http.get<EpisodeInterface>(`${this.baseUrl}/episode/${id}`);
+  }
+
+  getCharactersByIds(ids: number[]) {
+    const joined = ids.join(',');
+    return this.http.get<InterfaceCharacter | InterfaceCharacter[]>(`${this.baseUrl}/character/${joined}`);
   }
 
   setCharacterDetail(character: InterfaceCharacter) {
     this.characterDetail.set(character);
   }
+
   getCharacterDetail(): InterfaceCharacter | null {
     return this.characterDetail();
   }
-
 
   getCharacterById(id: number) {
     return this.http.get<InterfaceCharacter>(`${this.baseUrl}/character/${id}`);
   }
 
-
-
   getEpisodesByIds(ids: number[]) {
     const joined = ids.join(',');
-    return this.http.get<EpisodeInterface>(`${this.baseUrl}/episode/${joined}`);
-}
-
+    return this.http.get<EpisodeInterface | EpisodeInterface[]>(`${this.baseUrl}/episode/${joined}`);
+  }
 }

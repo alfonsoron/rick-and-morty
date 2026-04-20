@@ -1,3 +1,41 @@
+<div class="p-3" style="background-color: rgb(31, 31, 31); min-height: 100vh;">
+  <div class="row">
+    <div class="mb-3">
+      <style>
+        .dark-input::placeholder {
+          color: #bfbfbf;
+        }
+      </style>
 
+      <input
+        type="text"
+        class="form-control bg-dark text-light border-secondary dark-input w-25"
+        placeholder="Buscar episodio"
+        (input)="onSearch(($event.target).value)"
+      />
+    </div>
 
-<h1>funciona episode</h1>
+    @for (item of episodes(); track item.id) {
+      <div class="col-6 col-md-4 col-lg-3 mb-4">
+        <div
+          class="card h-100 bg-dark text-light border-secondary shadow-sm"
+          role="button"
+          (click)="goToEpisodeDetail(item)"
+        >
+          <div class="card-body py-3">
+            <h6 class="card-title mb-2">{{ item.name }}</h6>
+            <p class="mb-1 text-secondary">{{ item.episode }}</p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <app-paginador
+    [currentPage]="currentPage()"
+    [prevNullPage]="prevNullPage()"
+    [nextNullPage]="nextNullPage()"
+    [totalPages]="totalPages()"
+    (pageChange)="loadEpisodes($event)"
+  ></app-paginador>
+</div>

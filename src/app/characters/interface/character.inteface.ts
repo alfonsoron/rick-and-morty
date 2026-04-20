@@ -1,16 +1,17 @@
 export interface LocationRef {
   name: string;
-
 }
-export interface OrigineRef{
-  name: string;
 
+export interface OrigineRef {
+  name: string;
 }
 
 export interface EpisodeInterface {
   id: number;
   episode: string;
   name: string;
+  air_date?: string;
+  characters?: string[];
 }
 
 export interface InterfaceCharacter {

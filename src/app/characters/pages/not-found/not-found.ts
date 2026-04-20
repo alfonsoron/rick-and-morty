@@ -1,10 +1,15 @@
-import {  Component } from '@angular/core';
-import { RouterLink } from "@angular/router";
-
+import {  Component , inject } from '@angular/core';
+import { AppRoute } from '../../../shared/enums/routes.enums';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-not-found',
-  imports: [RouterLink],
+  imports: [],
   styleUrl: './not-found.css',
   templateUrl: './not-found.html',
 })
-export class NotFound { }
+export class NotFound {
+private router = inject(Router);
+  goToStart(){
+    this.router.navigate([AppRoute.Start]);
+  }
+ }

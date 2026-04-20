@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TopMenu } from "./characters/components/top-menu/top-menu";
 import { filter } from 'rxjs/operators';
+import { AuthService } from './user/service/info-user.service';
 
 
 @Component({
@@ -13,13 +14,15 @@ import { filter } from 'rxjs/operators';
 export class App {
   protected readonly title = signal('Rick-and-Morty');
 
-
+  private authService = inject(AuthService);
 
   private router = inject(Router);
 
   showTopMenu = true;
 
   constructor() {
+    this.authService.loadFromStorage();
+
     this.checkUrl(this.router.url);
 
     this.router.events
@@ -31,7 +34,7 @@ export class App {
 
   checkUrl(url: string) {
 
-    if ( url === '/' || url === '/404' || url==='/Home/404') {
+    if ( url === '/' || url === '/404' || url==='/Home/404' || url === '/login' || url === '/register' ) {
       this.showTopMenu = false;
       return
     }
