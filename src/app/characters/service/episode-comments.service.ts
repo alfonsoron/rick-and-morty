@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../user/service/info-user.service';
 
 export interface EpisodeComment {
@@ -28,7 +29,7 @@ export class EpisodeCommentsService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
 
-  private readonly BASE_URL = '/api/episode-comments';
+  private readonly BASE_URL = `${environment.apiUrl}/episode-comments`;
 
   getCommentsByEpisode(episodeId: number): Observable<EpisodeComment[]> {
     return this.http
