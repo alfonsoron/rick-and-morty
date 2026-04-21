@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-backend-render.onrender.com/api'
+  apiUrl: 'https://back-rick-and-morty.onrender.com/api'
 };
