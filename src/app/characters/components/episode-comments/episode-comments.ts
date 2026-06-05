@@ -1,10 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, signal, OnInit, OnChanges } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  input,
+  signal,
+  OnInit,
+  OnChanges,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../user/service/info-user.service';
 import { EpisodeCommentsService, EpisodeComment } from '../../service/episode-comments.service';
 import { User } from '../../../user/interfaces/user';
 import { EpisodeInterface } from '../../interface/character.inteface';
+import { defaultAvatarUrl } from '../../../shared/utils/avatar';
 
 @Component({
   selector: 'app-episode-comments',
@@ -15,6 +26,7 @@ export class EpisodeComments implements OnInit, OnChanges {
   private authService = inject(AuthService);
   private commentsService = inject(EpisodeCommentsService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   episode = input<EpisodeInterface | null>(null);
 
@@ -46,7 +58,10 @@ export class EpisodeComments implements OnInit, OnChanges {
       return;
     }
 
-    this.commentsService.getCommentsByEpisode(episodeId).subscribe({
+    this.commentsService
+      .getCommentsByEpisode(episodeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (comments) => {
         this.comments.set(
           comments.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
@@ -99,23 +114,29 @@ export class EpisodeComments implements OnInit, OnChanges {
     this.cancelEdit();
 
     if (editingId) {
-      this.commentsService.updateComment(editingId, content).subscribe({
-        next: () => {
-          this.loadComments();
-        },
-        error: (error) => {
-          console.error('Error updating comment:', error);
-        },
-      });
+      this.commentsService
+        .updateComment(editingId, content)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loadComments();
+          },
+          error: (error) => {
+            console.error('Error updating comment:', error);
+          },
+        });
     } else {
-      this.commentsService.createComment(episodeId, content).subscribe({
-        next: () => {
-          this.loadComments();
-        },
-        error: (error) => {
-          console.error('Error adding comment:', error);
-        },
-      });
+      this.commentsService
+        .createComment(episodeId, content)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loadComments();
+          },
+          error: (error) => {
+            console.error('Error adding comment:', error);
+          },
+        });
     }
   }
 
@@ -142,28 +163,39 @@ export class EpisodeComments implements OnInit, OnChanges {
       this.cancelEdit();
     }
 
-    this.commentsService.deleteComment(comment.id).subscribe({
-      next: () => {
-        this.loadComments();
-      },
-      error: (error) => {
-        console.error('Error deleting comment:', error);
-      },
-    });
+    this.commentsService
+      .deleteComment(comment.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadComments();
+        },
+        error: (error) => {
+          console.error('Error deleting comment:', error);
+        },
+      });
   }
 
   toggleCommentsEnabled(): void {
     if (!this.isAdmin() || !this.episode()?.id) return;
 
     const nextState = !this.commentsEnabled();
-    this.commentsService.toggleCommentSettings(this.episode()!.id, nextState).subscribe({
-      next: () => {
-        this.commentsEnabled.set(nextState);
-      },
-      error: (error) => {
-        console.error('Error toggling comments:', error);
-      },
-    });
+    this.commentsService
+      .toggleCommentSettings(this.episode()!.id, nextState)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.commentsEnabled.set(nextState);
+        },
+        error: (error) => {
+          console.error('Error toggling comments:', error);
+        },
+      });
+  }
+
+  /** Devuelve la foto del autor del comentario o un avatar placeholder. */
+  commentAvatar(comment: EpisodeComment): string {
+    return comment.user.photoUrl?.trim() || defaultAvatarUrl(comment.user.name);
   }
 
   private isAdminUser(user: User | null): boolean {

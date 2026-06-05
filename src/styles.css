@@ -1,0 +1,12 @@
+/* Estilos globales de las alertas (MatSnackBar) */
+.snackbar-error {
+  --mdc-snackbar-container-color: #b00020;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+.snackbar-success {
+  --mdc-snackbar-container-color: #1b7f3b;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}

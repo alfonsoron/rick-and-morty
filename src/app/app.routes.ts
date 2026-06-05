@@ -1,85 +1,35 @@
 import { Routes } from '@angular/router';
-import { Start } from './shared/home/start';
-import { CharactersList } from './characters/pages/characters/characters';
-import { CharacterDetails } from './characters/pages/onecharacterdetails/character-details';
-import { Episode } from './characters/pages/episode/episode';
-import { Locations } from './characters/pages/locations/locations';
-import { NotFound } from './characters/pages/not-found/not-found';
-import { Register } from './user/pages/register/register/register';
-import { Login } from './user/pages/login/login/login';
-import { AuthGuard } from './user/guard/auth.guard';
-import { GuestGuard } from './user/guard/guest.guard';
-import { AppRoute, HomeRoute } from './shared/enums/routes.enums';
-import { Profile } from './characters/pages/profile/profile/profile';
-import { OneEpisode } from './characters/pages/oneepisode/one-episode';
+import { authGuard } from './user/guard/auth.guard';
+import { guestGuard } from './user/guard/guest.guard';
+import { AppRoute } from './shared/enums/routes.enums';
 
 export const routes: Routes = [
   {
     path: AppRoute.Start,
-    canActivate: [GuestGuard],
-    component: Start,
+    canActivate: [guestGuard],
+    loadComponent: () => import('./shared/home/start').then((m) => m.Start),
   },
   {
     path: AppRoute.Register,
-    canActivate: [GuestGuard],
-    component: Register,
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./user/pages/register/register/register').then((m) => m.Register),
   },
   {
     path: AppRoute.Login,
-    canActivate: [GuestGuard],
-    component: Login,
+    canActivate: [guestGuard],
+    loadComponent: () => import('./user/pages/login/login/login').then((m) => m.Login),
   },
   {
     path: AppRoute.Home,
-    canActivate: [AuthGuard],
-    children: [
-      {
-        path: HomeRoute.Characters,
-        children: [
-          {
-            path: '',
-            component: CharactersList,
-          },
-          {
-            path: ':id',
-            component: CharacterDetails,
-          },
-        ],
-      },
-      {
-        path: HomeRoute.Episodes,
-        children: [
-          {
-            path: '',
-            component: Episode,
-          },
-          {
-            path: ':id',
-            component: OneEpisode,
-          },
-        ],
-      },
-      {
-        path: HomeRoute.Locations,
-        component: Locations,
-      },
-      {
-        path: HomeRoute.Profile,
-        component: Profile,
-      },
-      {
-        path: AppRoute.NotFound,
-        component: NotFound,
-      },
-      {
-        path: '**',
-        redirectTo: AppRoute.NotFound,
-      },
-    ],
+    canMatch: [authGuard],
+    loadChildren: () =>
+      import('./characters/characters.routes').then((m) => m.CHARACTERS_ROUTES),
   },
   {
     path: AppRoute.NotFound,
-    component: NotFound,
+    loadComponent: () =>
+      import('./characters/pages/not-found/not-found').then((m) => m.NotFound),
   },
   {
     path: '**',

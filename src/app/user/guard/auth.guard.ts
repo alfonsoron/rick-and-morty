@@ -1,20 +1,19 @@
-import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanMatchFn, Router } from '@angular/router';
 import { AppRoute } from '../../shared/enums/routes.enums';
+import { AuthService } from '../service/info-user.service';
 
-@Injectable({ providedIn: 'root' })
-export class AuthGuard implements CanActivate {
+/**
+ * Guard funcional de tipo canMatch: al usarse con canMatch, si el usuario no
+ * esta autenticado el modulo (chunk lazy) ni siquiera se descarga.
+ */
+export const authGuard: CanMatchFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  constructor(private router: Router) {}
-
-  canActivate(): boolean {
-    const user = localStorage.getItem('currentUser');
-
-    if (!user) {
-      this.router.navigate([AppRoute.Login]);
-      return false;
-    }
-
+  if (authService.isAuthenticated()) {
     return true;
   }
-}
+
+  return router.createUrlTree([AppRoute.Login]);
+};

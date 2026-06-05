@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EpisodeInterface, InterfaceCharacter } from '../../interface/character.inteface';
 import { RickMortyService } from '../../service/rick-morty.service';
 import { AppRoute, HomeRoute } from '../../../shared/enums/routes.enums';
 import { AuthService } from '../../../user/service/info-user.service';
 import { EpisodeComments } from '../../components/episode-comments/episode-comments';
+import { idsFromUrls } from '../../../shared/utils/ids';
 
 @Component({
   selector: 'app-one-episode',
@@ -17,6 +19,7 @@ export class OneEpisode {
   private router = inject(Router);
   private service = inject(RickMortyService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   episode = signal<EpisodeInterface | null>(null);
   characters = signal<InterfaceCharacter[]>([]);
@@ -35,15 +38,18 @@ export class OneEpisode {
       return;
     }
 
-    this.service.getEpisodeById(id).subscribe({
+    this.service.getEpisodeById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (ep) => {
         this.episode.set(ep);
         this.favoriteAdded.set(this.authService.isEpisodeFavorite(ep.id));
-        this.authService.syncFavoriteEpisodes().subscribe({
-          next: () => {
-            this.favoriteAdded.set(this.authService.isEpisodeFavorite(ep.id));
-          },
-        });
+        this.authService
+          .syncFavoriteEpisodes()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.favoriteAdded.set(this.authService.isEpisodeFavorite(ep.id));
+            },
+          });
         this.loadCharactersFromEpisode(ep);
       },
       error: () => {
@@ -54,19 +60,20 @@ export class OneEpisode {
   }
 
   loadCharactersFromEpisode(ep: EpisodeInterface): void {
-    const ids = (ep.characters ?? [])
-      .map((url: string) => Number(url.split('/').pop()))
-      .filter((n: number) => !Number.isNaN(n));
+    const ids = idsFromUrls(ep.characters);
 
     if (!ids.length) {
       this.characters.set([]);
       return;
     }
 
-    this.service.getCharactersByIds(ids).subscribe({
-      next: (chars) => this.characters.set(Array.isArray(chars) ? chars : [chars]),
-      error: () => this.characters.set([]),
-    });
+    this.service
+      .getCharactersByIds(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (chars) => this.characters.set(Array.isArray(chars) ? chars : [chars]),
+        error: () => this.characters.set([]),
+      });
   }
 
   goToCharacter(character: InterfaceCharacter): void {
@@ -78,13 +85,16 @@ export class OneEpisode {
     const selectedEpisode = this.episode();
     if (!selectedEpisode) return;
 
-    this.authService.toggleFavoriteEpisode(selectedEpisode).subscribe({
-      next: (isFavoriteNow) => {
-        this.favoriteAdded.set(isFavoriteNow);
-      },
-      error: (error) => {
-        console.error('Favorite episode error:', error);
-      },
-    });
+    this.authService
+      .toggleFavoriteEpisode(selectedEpisode)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (isFavoriteNow) => {
+          this.favoriteAdded.set(isFavoriteNow);
+        },
+        error: (error) => {
+          console.error('Favorite episode error:', error);
+        },
+      });
   }
 }

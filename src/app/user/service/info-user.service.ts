@@ -44,9 +44,18 @@ export class AuthService {
     return this.userSignal();
   }
 
+  isAuthenticated(): boolean {
+    if (this.userSignal()?.token) return true;
+    return !!sessionStorage.getItem(this.authTokenStorageKey);
+  }
+
   loadFromStorage() {
-    const info = localStorage.getItem(this.currentUserStorageKey);
-    const token = localStorage.getItem(this.authTokenStorageKey);
+    // Limpieza de cualquier sesion previa guardada en localStorage (ya no se usa).
+    localStorage.removeItem(this.currentUserStorageKey);
+    localStorage.removeItem(this.authTokenStorageKey);
+
+    const info = sessionStorage.getItem(this.currentUserStorageKey);
+    const token = sessionStorage.getItem(this.authTokenStorageKey);
     if (!info) return;
 
     const storedUser = JSON.parse(info) as User;
@@ -66,6 +75,8 @@ export class AuthService {
 
   logout() {
     this.userSignal.set(null);
+    sessionStorage.removeItem(this.currentUserStorageKey);
+    sessionStorage.removeItem(this.authTokenStorageKey);
     localStorage.removeItem(this.currentUserStorageKey);
     localStorage.removeItem(this.authTokenStorageKey);
   }
@@ -141,18 +152,19 @@ export class AuthService {
     const user = this.userSignal();
     if (!user || !user.token) return of(user!);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       id: user.id,
       name: name || user.name,
       photoUrl: photoUrl || user.photoUrl || '',
-      address: {
-        street: user.address?.street ?? '',
-        location: location || user.address?.location || '',
-        city: user.address?.city ?? '',
-        country: user.address?.country ?? '',
-        cp: user.address?.cp ?? '',
-      },
     };
+
+    // La direccion es opcional: solo enviamos los campos con valor real.
+    // Si estan todos vacios (usuario sin direccion), no mandamos address
+    // para no chocar con la validacion @IsNotEmpty del backend.
+    const address = this.buildAddressPayload(user, location);
+    if (address) {
+      payload['address'] = address;
+    }
 
     return this.userService.updateUser(payload, user.token).pipe(
       tap((response: any) => {
@@ -179,19 +191,30 @@ export class AuthService {
     return (user.favoriteEpisodes ?? []).some((episode) => episode.id === episodeId);
   }
 
-  private normalizeFavoriteEpisodes(response: unknown): EpisodeInterface[] {
-    const parsedResponse = response as FavoriteEpisodeApiResponse;
-    const rawItems = Array.isArray(response)
-      ? response
-      : Array.isArray(parsedResponse?.data)
-        ? parsedResponse.data
-        : Array.isArray(parsedResponse?.favoriteEpisodes)
-          ? parsedResponse.favoriteEpisodes
-          : Array.isArray(parsedResponse?.data?.favoriteEpisodes)
-            ? parsedResponse.data.favoriteEpisodes
-            : [];
+  /**
+   * Construye el address solo con los campos que tienen valor (no vacios).
+   * Devuelve null si no hay ningun dato de direccion, para omitirlo del payload.
+   */
+  private buildAddressPayload(user: User, location: string): Record<string, string> | null {
+    const source: Record<string, string> = {
+      street: user.address?.street ?? '',
+      location: location || user.address?.location || '',
+      city: user.address?.city ?? '',
+      country: user.address?.country ?? '',
+      cp: user.address?.cp ?? '',
+    };
 
-    return rawItems.map((item) => ({
+    const filled = Object.entries(source).filter(([, value]) => value.trim().length > 0);
+
+    if (filled.length === 0) {
+      return null;
+    }
+
+    return Object.fromEntries(filled);
+  }
+
+  private normalizeFavoriteEpisodes(response: unknown): EpisodeInterface[] {
+    return this.extractFavoriteItems(response).map((item) => ({
       id: Number(item.episodeId),
       name: item.name,
       episode: item.episodeCode,
@@ -199,12 +222,34 @@ export class AuthService {
     }));
   }
 
-  private persistSession(user: User): void {
-    const { favoriteEpisodes, ...storedUser } = user;
-    localStorage.setItem(this.currentUserStorageKey, JSON.stringify(storedUser));
+  /**
+   * El backend puede devolver el listado en distintas formas (array plano,
+   * dentro de data, dentro de favoriteEpisodes, etc). Tomamos el primer
+   * candidato que sea un array.
+   */
+  private extractFavoriteItems(response: unknown): FavoriteEpisodeApiItem[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
 
-    if (user.token) {
-      localStorage.setItem(this.authTokenStorageKey, user.token);
+    const parsed = response as FavoriteEpisodeApiResponse;
+    const candidates: unknown[] = [
+      parsed?.data,
+      parsed?.favoriteEpisodes,
+      (parsed?.data as { favoriteEpisodes?: FavoriteEpisodeApiItem[] })?.favoriteEpisodes,
+    ];
+
+    return (candidates.find(Array.isArray) as FavoriteEpisodeApiItem[]) ?? [];
+  }
+
+  private persistSession(user: User): void {
+    // La sesion se guarda en sessionStorage (no en localStorage) para no
+    // persistir las credenciales del usuario mas alla de la pestania activa.
+    const { favoriteEpisodes, token, ...storedUser } = user;
+    sessionStorage.setItem(this.currentUserStorageKey, JSON.stringify(storedUser));
+
+    if (token) {
+      sessionStorage.setItem(this.authTokenStorageKey, token);
     }
   }
 }

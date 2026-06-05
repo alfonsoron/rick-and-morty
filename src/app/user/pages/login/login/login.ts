@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal,} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal,} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule,} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../service/info-user.service';
@@ -6,6 +7,7 @@ import { LoginResponse } from '../../../interfaces/loginResponse';
 import { User } from '../../../interfaces/user';
 import { UserService } from '../../../service/user.service';
 import { AppRoute, HomeRoute } from '../../../../shared/enums/routes.enums';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +26,8 @@ export class Login implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
+  private notification = inject(NotificationService);
 
 constructor() {}
 
@@ -38,12 +42,13 @@ constructor() {}
 
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
+      this.notification.error('Ingresa un e-mail valido y una contrasena de al menos 5 caracteres.');
       return;
     }
 
     const payload = this.getpayload();
 
-    this.loginService.login(payload).subscribe({
+    this.loginService.login(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response: LoginResponse) => {
         this.authService.setUser(response.data.user as User, response.data.token);
 

@@ -13,6 +13,7 @@ export interface EpisodeComment {
   updatedAt: Date;
   user: {
     name: string;
+    photoUrl?: string;
   };
 }
 
@@ -40,17 +41,7 @@ export class EpisodeCommentsService {
         map((response) => {
           const data = response['data'] || response;
           const comments = Array.isArray(data['comments']) ? data['comments'] : [];
-          return comments.map((comment: any) => ({
-            id: comment.id,
-            episodeId: comment.episodeId,
-            userId: comment.userId,
-            content: comment.content,
-            createdAt: new Date(comment.createdAt),
-            updatedAt: new Date(comment.updatedAt),
-            user: {
-              name: comment.user.name,
-            },
-          }));
+          return comments.map((comment: any) => this.mapComment(comment));
         }),
       );
   }
@@ -62,25 +53,7 @@ export class EpisodeCommentsService {
         { episodeId, content },
         { headers: this.createAuthHeaders() },
       )
-      .pipe(
-        map((response) => {
-          const comment = response['comment'] || response['data']?.['comment'];
-          if (!comment) {
-            throw new Error('No comment in response');
-          }
-          return {
-            id: comment.id,
-            episodeId: comment.episodeId,
-            userId: comment.userId,
-            content: comment.content,
-            createdAt: new Date(comment.createdAt),
-            updatedAt: new Date(comment.updatedAt),
-            user: {
-              name: comment.user.name,
-            },
-          };
-        }),
-      );
+      .pipe(map((response) => this.mapComment(this.extractComment(response))));
   }
 
   updateComment(commentId: string, content: string): Observable<EpisodeComment> {
@@ -90,25 +63,7 @@ export class EpisodeCommentsService {
         { content },
         { headers: this.createAuthHeaders() },
       )
-      .pipe(
-        map((response) => {
-          const comment = response['comment'] || response['data']?.['comment'];
-          if (!comment) {
-            throw new Error('No comment in response');
-          }
-          return {
-            id: comment.id,
-            episodeId: comment.episodeId,
-            userId: comment.userId,
-            content: comment.content,
-            createdAt: new Date(comment.createdAt),
-            updatedAt: new Date(comment.updatedAt),
-            user: {
-              name: comment.user.name,
-            },
-          };
-        }),
-      );
+      .pipe(map((response) => this.mapComment(this.extractComment(response))));
   }
 
   deleteComment(commentId: string): Observable<void> {
@@ -123,6 +78,31 @@ export class EpisodeCommentsService {
       { commentsEnabled: enabled },
       { headers: this.createAuthHeaders() },
     );
+  }
+
+  /** Normaliza un comentario crudo del backend al modelo EpisodeComment. */
+  private mapComment(comment: any): EpisodeComment {
+    return {
+      id: comment.id,
+      episodeId: comment.episodeId,
+      userId: comment.userId,
+      content: comment.content,
+      createdAt: new Date(comment.createdAt),
+      updatedAt: new Date(comment.updatedAt),
+      user: {
+        name: comment.user.name,
+        photoUrl: comment.user.photoUrl ?? '',
+      },
+    };
+  }
+
+  /** Obtiene el comentario de la respuesta (sea plano o dentro de data). */
+  private extractComment(response: ApiResponse): any {
+    const comment = response['comment'] || response['data']?.['comment'];
+    if (!comment) {
+      throw new Error('No comment in response');
+    }
+    return comment;
   }
 
   private createAuthHeaders(): HttpHeaders {

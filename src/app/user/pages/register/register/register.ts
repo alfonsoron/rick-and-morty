@@ -1,9 +1,11 @@
 import { RegisterPayload } from './../../../interfaces/registerPayload';
 import { UserService } from './../../../service/user.service';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl,FormBuilder,FormGroup,ValidationErrors,Validators,ReactiveFormsModule,} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AppRoute } from '../../../../shared/enums/routes.enums';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 
 
@@ -47,6 +49,8 @@ export class Register implements OnInit {
   private registerService = inject(UserService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
+  private notification = inject(NotificationService);
 
   constructor() {}
 
@@ -73,12 +77,13 @@ export class Register implements OnInit {
 
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
+      this.notification.error('Revisa los campos del formulario antes de continuar.');
       return;
     }
 
     const payload = this.getpayload();
 
-    this.registerService.register(payload).subscribe({
+    this.registerService.register(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.ok.set(true);
         this.loginForm.reset();

@@ -1,20 +1,23 @@
-import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AppRoute, HomeRoute } from '../../shared/enums/routes.enums';
+import { AuthService } from '../service/info-user.service';
 
-@Injectable({ providedIn: 'root' })
-export class GuestGuard implements CanActivate {
+/**
+ * Guard de rutas publicas (login, register, start). Si el usuario ya esta
+ * autenticado lo redirige al dashboard.
+ *
+ * Se usa como canActivate (no canMatch) a proposito: al ir a una ruta
+ * protegida, la ruta vacia '' no debe interceptar la navegacion y generar
+ * un bucle de redireccion.
+ */
+export const guestGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  constructor(private router: Router) {}
-
-  canActivate(): boolean {
-    const user = localStorage.getItem('currentUser');
-
-    if (user) {
-      this.router.navigate([AppRoute.Home, HomeRoute.Characters]);
-      return false;
-    }
-
+  if (!authService.isAuthenticated()) {
     return true;
   }
-}
+
+  return router.createUrlTree([AppRoute.Home, HomeRoute.Characters]);
+};

@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TopMenu } from "./characters/components/top-menu/top-menu";
 import { filter } from 'rxjs/operators';
@@ -26,7 +27,10 @@ export class App {
     this.checkUrl(this.router.url);
 
     this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
+      .pipe(
+        filter(e => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
       .subscribe((e: any) => {
         this.checkUrl(e.urlAfterRedirects);
       });

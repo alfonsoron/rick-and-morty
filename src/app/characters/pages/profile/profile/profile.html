@@ -8,22 +8,13 @@
         <div class="col-md-4">
           <div class="card bg-dark border-secondary text-light">
 
-            @if (hasProfilePhoto()) {
-              <img
-                [src]="user()?.photoUrl"
-                alt="Profile photo"
-                class="card-img-top object-fit-cover"
-                style="width:100%; aspect-ratio:1/1;"
-                (error)="onProfileImageError()"
-              />
-            } @else {
-              <div
-                class="card-img-top bg-secondary-subtle d-flex align-items-center justify-content-center text-dark"
-                style="width:100%; aspect-ratio:1/1;"
-              >
-                <span>No profile photo</span>
-              </div>
-            }
+            <img
+              [src]="profilePhoto()"
+              alt="Profile photo"
+              class="card-img-top object-fit-cover"
+              style="width:100%; aspect-ratio:1/1;"
+              (error)="onProfileImageError()"
+            />
 
             <div class="card-body">
               <h5 class="card-title text-center">Profile Info</h5>

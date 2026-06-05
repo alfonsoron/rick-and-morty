@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RickMortyService } from '../../service/rick-morty.service';
 import { InterfaceCharacter } from '../../interface/character.inteface';
 import { Router, RouterLink } from "@angular/router";
@@ -14,6 +15,7 @@ export class CharactersList {
 
   private rickMortyService = inject(RickMortyService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   characters = signal<InterfaceCharacter[]>([]);
 
@@ -34,7 +36,10 @@ export class CharactersList {
     this.loadCharacters();
   }
   loadCharacters(page: number = 1) {
-    this.rickMortyService.getCharacters(page, this.searchName()).subscribe({
+    this.rickMortyService
+      .getCharacters(page, this.searchName())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (response) => {
         this.characters.set(response.results);
         this.currentPage.set(page);
@@ -48,9 +53,6 @@ export class CharactersList {
   }
   goToDetail(character: InterfaceCharacter): void {
     this.rickMortyService.setCharacterDetail(character);
-    console.log(character);
     this.router.navigate([AppRoute.Home, HomeRoute.Characters, character.id]);
-
-
   }
 }
